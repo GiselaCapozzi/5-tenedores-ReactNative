@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Button } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
+import {  } from 'react-native-element';
 import firebase from "firebase";
 
 const UserLogged = () => {
@@ -15,5 +16,9 @@ const UserLogged = () => {
     </View>
   )
 };
+
+const styles = StyleSheet.create({
+
+})
 
 export default UserLogged;
