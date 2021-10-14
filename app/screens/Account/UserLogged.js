@@ -1,18 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Text } from 'react-native';
 import { Button } from 'react-native-elements';
 import FlashMessage from "react-native-flash-message";
-import firebase from "firebase";
+import firebase from 'firebase';
 
 import Loading from '../../components/Loading';
+import InfoUser from "../../components/Account/InfoUser";
 
 const UserLogged = () => {
   const [loading, setLoading] = useState(false);
   const [loadingText, setLoadingText] = useState('');
-
   return (
     <View style={styles.viewUserInfo}>
-      <Text>InfoUser...</Text>
+      <InfoUser />
       <Text>AccountOptions</Text>
       <Button 
         title="Cerrar sesión"
@@ -20,15 +20,15 @@ const UserLogged = () => {
         titleStyle={styles.btnCloseSessionText}
         onPress={() => firebase.auth().signOut()}
       />
-      <FlashMessage position="center" />
-      <Loading text={loadingText} isVisible={loading}/>
+      <FlashMessage position="center"/>
+      {/* <Loading text={loadingText} isVisible={loading}/> */}
     </View>
   )
 };
 
 const styles = StyleSheet.create({
   viewUserInfo: {
-    minHeight: "100%",
+    minHeight: '100%',
     backgroundColor: "#f2f2f2"
   },
   btnCloseSession: {
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10
   },
   btnCloseSessionText: {
-   color: "#00a680"
+    color: "#00a680"
   }
 })
 
