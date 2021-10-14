@@ -8,9 +8,6 @@ const InfoUser = (props) => {
     displayName,
     email
   } } = props;
-  console.log(photoURL);
-  console.log(displayName);
-  console.log(email);
 
   return (
     <View style={styles.viewUserInfo}>
