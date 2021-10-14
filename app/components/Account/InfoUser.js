@@ -1,6 +1,11 @@
 import React from "react";
 import { StyleSheet, View, Text } from 'react-native';
 import { Avatar } from 'react-native-elements';
+import firebase from "firebase";
+// import * as Permissions from 'expo-permissions';
+import { Camera } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
+import { showMessage } from 'react-native-flash-message';
 
 const InfoUser = (props) => {
   const { userInfo: {
@@ -8,6 +13,24 @@ const InfoUser = (props) => {
     displayName,
     email
   } } = props;
+
+  const changeAvatar = async () => {
+    const resultPermission = await Camera.requestCameraPermissionsAsync();
+    const resultPermissionCamera = resultPermission.status;
+    
+    if(resultPermissionCamera === 'denied') {
+      showMessage({
+        message: 'Es necesario aceptar los permisos de la galeria',
+        type: 'info'
+      })
+    } else {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        aspect: [4, 3]
+      })
+      console.log(result);
+    }
+  }
 
   return (
     <View style={styles.viewUserInfo}>
@@ -23,6 +46,7 @@ const InfoUser = (props) => {
       >
         <Avatar.Accessory
           size={30}
+          onPress={changeAvatar}
         />
       </Avatar>
       <View>
