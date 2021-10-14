@@ -8,11 +8,22 @@ import Loading from '../../components/Loading';
 import InfoUser from "../../components/Account/InfoUser";
 
 const UserLogged = () => {
+  const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingText, setLoadingText] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      const user = await firebase.auth().currentUser;
+      setUserInfo(user);
+    })()
+  }, [])
+
   return (
     <View style={styles.viewUserInfo}>
-      <InfoUser />
+      {
+        userInfo && <InfoUser userInfo={userInfo}/>
+      }      
       <Text>AccountOptions</Text>
       <Button 
         title="Cerrar sesión"
