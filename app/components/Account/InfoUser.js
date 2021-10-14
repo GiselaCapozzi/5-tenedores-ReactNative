@@ -20,7 +20,7 @@ const InfoUser = (props) => {
       </Avatar>
       <View>
         <Text style={styles.displayName}>
-          Gisela Capozzi
+          Gisela Elisabeth Capozzi
         </Text>
         <Text>gise@gmail.com</Text>
       </View>
