@@ -11,7 +11,8 @@ const InfoUser = (props) => {
   const { userInfo: {
     photoURL,
     displayName,
-    email
+    email,
+    uid
   } } = props;
 
   const changeAvatar = async () => {
@@ -28,8 +29,30 @@ const InfoUser = (props) => {
         allowsEditing: true,
         aspect: [4, 3]
       })
-      console.log(result);
+      if(result.cancelled) {
+        showMessage({
+          message: "Has cerrado la selección de imagenes"
+        })
+      } else {
+        uploadImage(result.uri)
+          .then(() => {
+            console.log('Imagen subida');
+          })
+          .catch(() => {
+            showMessage({
+              message: "Error al actualizar el avatar",
+              type: "danger"
+            })
+          })
+      }
     }
+  };
+
+  const uploadImage = async (uri) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const ref = firebase.storage().ref().child(`avatar/${uid}`);
+    return ref.put(blob);
   }
 
   return (
