@@ -6,13 +6,19 @@ import firebase from "firebase";
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { showMessage } from 'react-native-flash-message';
+import { update } from "lodash";
 
 const InfoUser = (props) => {
   const { userInfo: {
     photoURL,
     displayName,
-    email
+    email,
+    uid
   } } = props;
+
+  console.log(props.userInfo);
+
+  // console.log(props.userInfo);
 
   const changeAvatar = async () => {
     const resultPermission = await Camera.requestCameraPermissionsAsync();
@@ -28,8 +34,45 @@ const InfoUser = (props) => {
         allowsEditing: true,
         aspect: [4, 3]
       })
-      console.log(result);
+      if(result.cancelled) {
+        showMessage({
+          message: "Has cerrado la selección de imagenes",
+          type: "info"
+        })
+      } else {
+        uploadImage(result.uri)
+          .then(() => {
+            updatePhotoUrl();
+          })
+          .catch(() => {
+            showMessage({
+              message: "Error al actualizar el avatar",
+              type: "danger"
+            })
+          })
+      }
     }
+  };
+
+  const uploadImage = async (uri) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const ref = firebase.storage().ref().child(`avatar/${uid}`);
+    return ref.put(blob);
+  }
+
+  const updatePhotoUrl = () => {
+    firebase
+      .storage()
+      .ref(`avatar/${uid}`)
+      .getDownloadURL()
+      .then(async (response) => {
+        const update = {
+          photoURL: response
+        };
+        await firebase.auth().currentUser.updateProfile(update);
+        console.log("Imagen actualizada");
+      });
   }
 
   return (
