@@ -2,11 +2,9 @@ import React from "react";
 import { StyleSheet, View, Text } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import firebase from "firebase";
-// import * as Permissions from 'expo-permissions';
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { showMessage } from 'react-native-flash-message';
-import { update } from "lodash";
 
 const InfoUser = (props) => {
   const { userInfo: {
@@ -14,17 +12,16 @@ const InfoUser = (props) => {
     displayName,
     email,
     uid
-  } } = props;
-
-  console.log(props.userInfo);
-
-  // console.log(props.userInfo);
+  },
+    setLoading,
+    setLoadingText
+  } = props;
 
   const changeAvatar = async () => {
     const resultPermission = await Camera.requestCameraPermissionsAsync();
     const resultPermissionCamera = resultPermission.status;
-    
-    if(resultPermissionCamera === 'denied') {
+
+    if (resultPermissionCamera === 'denied') {
       showMessage({
         message: 'Es necesario aceptar los permisos de la galeria',
         type: 'info'
@@ -34,7 +31,7 @@ const InfoUser = (props) => {
         allowsEditing: true,
         aspect: [4, 3]
       })
-      if(result.cancelled) {
+      if (result.cancelled) {
         showMessage({
           message: "Has cerrado la selección de imagenes",
           type: "info"
@@ -55,6 +52,8 @@ const InfoUser = (props) => {
   };
 
   const uploadImage = async (uri) => {
+    setLoading(true);
+    setLoadingText('Actualizando Avatar');
     const response = await fetch(uri);
     const blob = await response.blob();
     const ref = firebase.storage().ref().child(`avatar/${uid}`);
@@ -71,8 +70,14 @@ const InfoUser = (props) => {
           photoURL: response
         };
         await firebase.auth().currentUser.updateProfile(update);
-        console.log("Imagen actualizada");
-      });
+        setLoading(false);
+      })
+      .catch(() => {
+        showMessage({
+          message: "Error al actualizar el avatar",
+          type: "warning"
+        })
+      })
   }
 
   return (
@@ -94,9 +99,9 @@ const InfoUser = (props) => {
       </Avatar>
       <View>
         <Text style={styles.displayName}>
-         {
-           displayName ? displayName : "Anónimo"
-         }
+          {
+            displayName ? displayName : "Anónimo"
+          }
         </Text>
         <Text>
           {

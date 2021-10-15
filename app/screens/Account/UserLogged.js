@@ -6,6 +6,7 @@ import firebase from 'firebase';
 
 import Loading from '../../components/Loading';
 import InfoUser from "../../components/Account/InfoUser";
+import AccountOptions from "../../components/Account/AccountOptions";
 
 const UserLogged = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -22,17 +23,21 @@ const UserLogged = () => {
   return (
     <View style={styles.viewUserInfo}>
       {
-        userInfo && <InfoUser userInfo={userInfo}/>
-      }      
-      <Text>AccountOptions</Text>
-      <Button 
+        userInfo && <InfoUser
+          userInfo={userInfo}
+          setLoading={setLoading}
+          setLoadingText={setLoadingText}
+        />
+      }
+      <AccountOptions userInfo={userInfo}/>
+      <Button
         title="Cerrar sesión"
         buttonStyle={styles.btnCloseSession}
         titleStyle={styles.btnCloseSessionText}
         onPress={() => firebase.auth().signOut()}
       />
-      <FlashMessage position="center"/>
-      {/* <Loading text={loadingText} isVisible={loading}/> */}
+      <FlashMessage position="center" />
+      <Loading text={loadingText} isVisible={loading}/>
     </View>
   )
 };
