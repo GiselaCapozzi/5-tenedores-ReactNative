@@ -6,6 +6,7 @@ import firebase from "firebase";
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { showMessage } from 'react-native-flash-message';
+import { update } from "lodash";
 
 const InfoUser = (props) => {
   const { userInfo: {
@@ -14,6 +15,10 @@ const InfoUser = (props) => {
     email,
     uid
   } } = props;
+
+  console.log(props.userInfo);
+
+  // console.log(props.userInfo);
 
   const changeAvatar = async () => {
     const resultPermission = await Camera.requestCameraPermissionsAsync();
@@ -31,12 +36,13 @@ const InfoUser = (props) => {
       })
       if(result.cancelled) {
         showMessage({
-          message: "Has cerrado la selección de imagenes"
+          message: "Has cerrado la selección de imagenes",
+          type: "info"
         })
       } else {
         uploadImage(result.uri)
           .then(() => {
-            console.log('Imagen subida');
+            updatePhotoUrl();
           })
           .catch(() => {
             showMessage({
@@ -53,6 +59,20 @@ const InfoUser = (props) => {
     const blob = await response.blob();
     const ref = firebase.storage().ref().child(`avatar/${uid}`);
     return ref.put(blob);
+  }
+
+  const updatePhotoUrl = () => {
+    firebase
+      .storage()
+      .ref(`avatar/${uid}`)
+      .getDownloadURL()
+      .then(async (response) => {
+        const update = {
+          photoURL: response
+        };
+        await firebase.auth().currentUser.updateProfile(update);
+        console.log("Imagen actualizada");
+      });
   }
 
   return (
