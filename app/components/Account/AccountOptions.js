@@ -6,13 +6,14 @@ import { map } from 'lodash';
 
 import Modal from '../Modal';
 import ChangeDisplayNameForm from './ChangeDisplayNameForm';
+import ChangeEmailForm from './ChangeEmailForm';
 
 const AccountOptions = (props) => {
-  const { userInfo } = props;
+  const { userInfo, setReloadUserInfo } = props;
   const [showModal, setShowModal] = useState(false);
   const [renderComponent, setReenderComponent] = useState(null);
   // console.log(userInfo);
-  
+
   const selectedComponent = (key) => {
     switch (key) {
       case  'displayName':
@@ -20,12 +21,19 @@ const AccountOptions = (props) => {
         <ChangeDisplayNameForm 
           displayName={userInfo.displayName}
           setShowModal={setShowModal}
+          setReloadUserInfo={setReloadUserInfo}
         />
         );
         setShowModal(true);
         break;
       case 'email':
-        setReenderComponent(<Text>Cambiando email</Text>);
+        setReenderComponent(
+          <ChangeEmailForm 
+            email={userInfo.email}
+            setShowModal={setShowModal}
+            setReloadUserInfo={setReloadUserInfo}
+          />
+        );
         setShowModal(true);
         break;
       case 'password':

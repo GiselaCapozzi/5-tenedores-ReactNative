@@ -12,13 +12,15 @@ const UserLogged = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingText, setLoadingText] = useState('');
+  const [realoadUserInfo, setReloadUserInfo] = useState(false);
 
   useEffect(() => {
     (async () => {
       const user = await firebase.auth().currentUser;
       setUserInfo(user);
-    })()
-  }, [])
+    })();
+    setReloadUserInfo(false);
+  }, [realoadUserInfo])
 
   return (
     <View style={styles.viewUserInfo}>
@@ -29,7 +31,10 @@ const UserLogged = () => {
           setLoadingText={setLoadingText}
         /> : null
       }
-      <AccountOptions userInfo={userInfo}/>
+      <AccountOptions
+        userInfo={userInfo} 
+        setReloadUserInfo={setReloadUserInfo}
+      />
       <Button
         title="Cerrar sesión"
         buttonStyle={styles.btnCloseSession}
@@ -37,7 +42,7 @@ const UserLogged = () => {
         onPress={() => firebase.auth().signOut()}
       />
       <FlashMessage position="center" />
-      <Loading text={loadingText} isVisible={loading}/>
+      <Loading text={loadingText} isVisible={loading} />
     </View>
   )
 };
