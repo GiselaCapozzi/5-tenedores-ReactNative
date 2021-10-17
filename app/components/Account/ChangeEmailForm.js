@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Input, Button } from "react-native-elements";
 
@@ -7,9 +7,18 @@ const ChangeEmailForm = (props) => {
     email,
     setShowModal,
     setReloadUserInfo } = props;
+  const [formData, setFormData] = useState(defaultValue());
+
+  const onChange = (e, type) => {
+    setFormData({
+      ...formData,
+      [type]: e.nativeEvent.text
+    })
+  }
 
   const onSubmit = () => {
     console.log('Formulario enviado');
+    console.log(formData);
   }
 
   return (
@@ -23,6 +32,7 @@ const ChangeEmailForm = (props) => {
           name: 'at',
           color: '#c2c2c2'
         }}
+        onChange={e => onChange(e, 'email')}
       />
       <Input 
         placeholder='Contraseña'
@@ -34,6 +44,7 @@ const ChangeEmailForm = (props) => {
           name: 'eye-outline',
           color: '#c2c2c2'
         }}
+        onChange={e => onChange(e, 'password')}
       />
       <Button 
         title='Cambiar email'
@@ -43,6 +54,13 @@ const ChangeEmailForm = (props) => {
       />
     </View>
   )
+}
+
+const defaultValue = () => {
+  return {
+    email: '',
+    password: ''
+  }
 }
 
 const styles = StyleSheet.create({
