@@ -8,11 +8,11 @@ import Modal from '../Modal';
 import ChangeDisplayNameForm from './ChangeDisplayNameForm';
 
 const AccountOptions = (props) => {
-  const { userInfo } = props;
+  const { userInfo, setReloadUserInfo } = props;
   const [showModal, setShowModal] = useState(false);
   const [renderComponent, setReenderComponent] = useState(null);
   // console.log(userInfo);
-  
+
   const selectedComponent = (key) => {
     switch (key) {
       case  'displayName':
@@ -20,6 +20,7 @@ const AccountOptions = (props) => {
         <ChangeDisplayNameForm 
           displayName={userInfo.displayName}
           setShowModal={setShowModal}
+          setReloadUserInfo={setReloadUserInfo}
         />
         );
         setShowModal(true);
