@@ -5,14 +5,38 @@ import { showMessage } from 'react-native-flash-message';
 import { map } from 'lodash';
 
 import Modal from '../Modal';
+import ChangeDisplayNameForm from './ChangeDisplayNameForm';
 
 const AccountOptions = (props) => {
-  const [showModal, setShowModal] = useState(true);
   const { userInfo } = props;
+  const [showModal, setShowModal] = useState(false);
+  const [renderComponent, setReenderComponent] = useState(null);
+  // console.log(userInfo);
   
   const selectedComponent = (key) => {
-    console.log("Click");
-    console.log(key);
+    switch (key) {
+      case  'displayName':
+        setReenderComponent(
+        <ChangeDisplayNameForm 
+          displayName={userInfo.displayName}
+          setShowModal={setShowModal}
+        />
+        );
+        setShowModal(true);
+        break;
+      case 'email':
+        setReenderComponent(<Text>Cambiando email</Text>);
+        setShowModal(true);
+        break;
+      case 'password':
+        setReenderComponent(<Text>Cambiando password</Text>);
+        setShowModal(true);
+        break;
+      default:
+        setReenderComponent(null);
+        setShowModal(false)
+        break;
+    }
   }
   const menuOptions = generateOptions(selectedComponent);
   
@@ -45,9 +69,14 @@ const AccountOptions = (props) => {
           </ListItem>
         ))
       }
-      <Modal isVisible={showModal} setIsVisible={setShowModal}>
-        <Text>Hola mundo!</Text>
-      </Modal>
+      {
+        renderComponent ? (
+        <Modal isVisible={showModal} setIsVisible={setShowModal}>
+        {renderComponent}
+        </Modal>
+        ) : 
+        null
+      }
     </View>
   )
 };

@@ -23,11 +23,11 @@ const UserLogged = () => {
   return (
     <View style={styles.viewUserInfo}>
       {
-        userInfo && <InfoUser
+        userInfo ? <InfoUser
           userInfo={userInfo}
           setLoading={setLoading}
           setLoadingText={setLoadingText}
-        />
+        /> : null
       }
       <AccountOptions userInfo={userInfo}/>
       <Button
