@@ -5,7 +5,8 @@ import { firebaseApp } from '../../utils/firebase';
 import firebase from 'firebase/app';
 
 // Se listan todos los restaurantes
-const Restaurants = () => {
+const Restaurants = (props) => {
+  const { navigation } = props;
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -27,6 +28,7 @@ const Restaurants = () => {
             name='plus'
             color='#00a680'
             containerStyle={styles.btnContainer}
+            onPress={() => navigation.navigate('add-restaurant')}
           />
         )
       }
