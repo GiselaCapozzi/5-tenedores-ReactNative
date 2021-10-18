@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import { StyleSheet, View, Text } from 'react-native';
 import { Input, Button } from 'react-native-elements';
 import { size } from 'lodash';
+import firebase from 'firebase';
+
+import { reauthenticate } from '../../utils/api';
 
 const ChangePasswordForm = (props) => {
   const {
@@ -14,6 +17,7 @@ const ChangePasswordForm = (props) => {
   const [showRepetirContraseña, setShowRepetirContraseña] = useState(false);
   const [formData, setFormData] = useState(defaultValue());
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const onChange = (e, type) => {
     setFormData({
@@ -22,32 +26,57 @@ const ChangePasswordForm = (props) => {
     })
   }
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
+    let isSetErrors = true;
     let errorsTemp = {};
     setErrors({});
     if (
-      !formData.password || 
-      !formData.newPassword || 
+      !formData.password ||
+      !formData.newPassword ||
       !formData.repeatNewPassword) {
-        errorsTemp = {
-          password: !formData.password ? 'La contraseña no puede estar vacía' : '',
-          newPassword: !formData.newPassword ? 'La contraseña no puede estar vacía' : '',
-          repeatNewPassword: !formData.repeatNewPassword ? 'La contraseña no puede estar vacía' : ''
-        }
+      errorsTemp = {
+        password: !formData.password ? 'La contraseña no puede estar vacía' : '',
+        newPassword: !formData.newPassword ? 'La contraseña no puede estar vacía' : '',
+        repeatNewPassword: !formData.repeatNewPassword ? 'La contraseña no puede estar vacía' : ''
+      }
     } else if (formData.newPassword !== formData.repeatNewPassword) {
       errorsTemp = {
         newPassword: 'Las contraseñas no son iguales',
         repeatNewPassword: 'Las contraseñas no son iguales'
       }
     } else if (size(formData.newPassword) < 6) {
-      errorsTemp= {
-        newPassword: 'La contraseña tiene que ser mayor o igual a 6 caracteres',
-        repeatNewPassword: 'La contraseña tiene que ser mayor o igual a 6 caracteres'
+      errorsTemp = {
+        newPassword: 'La contraseña tiene que ser mayor a 5 caracteres',
+        repeatNewPassword: 'La contraseña tiene que ser mayor a 5 caracteres'
       }
     } else {
-      console.log('OK!');
+      setIsLoading(true);
+      await reauthenticate(formData.password)
+        .then(async () => {
+          setIsLoading(false);
+          await firebase.auth()
+            .currentUser.updatePassword(formData.newPassword)
+            .then(() => {
+              isSetErrors = false;
+              setIsLoading(false);
+              setShowModal(false);
+              firebase.auth().signOut();
+            })
+            .catch(() => {
+              errorsTemp = {
+                other: 'Error al actualizar la contraseña'
+              }
+              setIsLoading(false);
+            })
+        })
+        .catch(() => {
+          setIsLoading(false);
+          errorsTemp = {
+            password: 'La contraseña no es correcta'
+          }
+        })
     }
-    setErrors(errorsTemp);
+    isSetErrors && setErrors(errorsTemp);
   }
 
   return (
@@ -99,7 +128,9 @@ const ChangePasswordForm = (props) => {
         containerStyle={styles.btnContainer}
         buttonStyle={styles.btn}
         onPress={onSubmit}
+        loading={isLoading}
       />
+      <Text>{errors.other}</Text>
     </View>
   )
 }
