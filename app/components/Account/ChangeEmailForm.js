@@ -8,6 +8,7 @@ const ChangeEmailForm = (props) => {
     setShowModal,
     setReloadUserInfo } = props;
   const [formData, setFormData] = useState(defaultValue());
+  const [showPassword, setShowPassword] = useState(false);
 
   const onChange = (e, type) => {
     setFormData({
@@ -38,11 +39,12 @@ const ChangeEmailForm = (props) => {
         placeholder='Contraseña'
         containerStyle={styles.input}
         password={true}
-        secureTextEntry={true}
+        secureTextEntry={showPassword ? false : true}
         rightIcon={{
           type: 'material-community',
-          name: 'eye-outline',
-          color: '#c2c2c2'
+          name: showPassword ? "eye-off-outline" : "eye-outline",
+          color: '#c2c2c2',
+          onPress: () => setShowPassword(!showPassword)
         }}
         onChange={e => onChange(e, 'password')}
       />
