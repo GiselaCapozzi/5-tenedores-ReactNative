@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import { showMessage } from 'react-native-flash-message';
 import { map } from 'lodash';
@@ -7,6 +7,7 @@ import { map } from 'lodash';
 import Modal from '../Modal';
 import ChangeDisplayNameForm from './ChangeDisplayNameForm';
 import ChangeEmailForm from './ChangeEmailForm';
+import ChangePasswordForm from './ChangePasswordForm';
 
 const AccountOptions = (props) => {
   const { userInfo, setReloadUserInfo } = props;
@@ -37,7 +38,12 @@ const AccountOptions = (props) => {
         setShowModal(true);
         break;
       case 'password':
-        setReenderComponent(<Text>Cambiando password</Text>);
+        setReenderComponent(
+          <ChangePasswordForm 
+            password={userInfo.password}
+            setShowModal={setShowModal}
+          />
+        );
         setShowModal(true);
         break;
       default:

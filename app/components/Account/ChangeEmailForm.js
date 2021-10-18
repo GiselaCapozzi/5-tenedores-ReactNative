@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Input, Button } from "react-native-elements";
+import firebase from 'firebase';
 
 import { validateEmail } from '../../utils/validations';
+import { reauthenticate } from '../../utils/api';
+import { showMessage } from 'react-native-flash-message';
 
 const ChangeEmailForm = (props) => {
   const {
@@ -12,6 +15,7 @@ const ChangeEmailForm = (props) => {
   const [formData, setFormData] = useState(defaultValue());
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const onChange = (e, type) => {
     setFormData({
@@ -35,7 +39,32 @@ const ChangeEmailForm = (props) => {
         password: 'La contraseña no puede estar vacia'
       })
     } else {
-      console.log('OK!');
+      setIsLoading(true);
+      reauthenticate(formData.password)
+        .then(() => {
+          firebase.auth()
+            .currentUser.updateEmail(formData.email)
+            .then(() => {
+              setIsLoading(false);
+              setReloadUserInfo(true);
+              showMessage({
+                message: 'Email actualizado correctamente'
+              })
+              setShowModal(false);
+            })
+            .catch(() => {
+              setErrors({
+                email: 'Error al actualizar el email'
+              });
+              setIsLoading(false);
+            })
+        })
+        .catch(() => {
+          setIsLoading(false);
+          setErrors({
+            password: 'La contraseña no es correcta'
+          })
+        })
     }
   }
 
@@ -72,6 +101,7 @@ const ChangeEmailForm = (props) => {
         containerStyle={styles.btnContainer}
         buttonStyle={styles.btn}
         onPress={onSubmit}
+        loading={isLoading}
       />
     </View>
   )
