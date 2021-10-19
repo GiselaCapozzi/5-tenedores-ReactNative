@@ -6,6 +6,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { showMessage } from 'react-native-flash-message';
 import { map, size, filter } from 'lodash';
 
+const widthScreen = Dimensions.get('window').width;
+
 const AddRestaurantForm = (props) => {
   const {
     setIsLoading,
@@ -28,6 +30,9 @@ const AddRestaurantForm = (props) => {
 
   return (
     <ScrollView style={styles.scrollView}>
+      <ImageRestaurant
+        imagenRestaurant={imagesSelected[0]}
+      />
       <FormAdd
         setRestaurantName={setRestaurantName}
         setRestaurantAddress={setRestaurantAddress}
@@ -43,6 +48,23 @@ const AddRestaurantForm = (props) => {
         buttonStyle={styles.btnAddRestaurant}
       />
     </ScrollView>
+  )
+}
+
+const ImageRestaurant = (props) => {
+  const { imagenRestaurant } = props;
+
+  return (
+    <View style={styles.viewPhoto}>
+      <Image
+        source={
+          imagenRestaurant ?
+            { uri: imagenRestaurant } :
+            require('../../../assets/img/no-image.png')
+        }
+        style={{ width: widthScreen, height: 200 }}
+      />
+    </View>
   )
 }
 
@@ -121,7 +143,7 @@ const UploadImage = (props) => {
           text: 'Eliminar',
           onPress: () => {
             setImagesSelected(
-            filter(imagesSelected, (imageUrl) => imageUrl !== image)
+              filter(imagesSelected, (imageUrl) => imageUrl !== image)
             )
           }
         }
@@ -202,6 +224,11 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     marginRight: 10,
+  },
+  viewPhoto: {
+    alignItems: 'center',
+    height: 200,
+    marginBottom: 20
   }
 });
 
