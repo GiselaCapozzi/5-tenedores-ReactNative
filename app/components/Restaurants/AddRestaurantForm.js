@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, View, ScrollView, Alert, Dimensions } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, Dimensions, FlatList } from 'react-native';
 import { Icon, Avatar, Image, Input, Button } from 'react-native-elements';
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
-import { showMessage } from 'react-native-flash-message'
+import { showMessage } from 'react-native-flash-message';
+import { map, size, filter } from 'lodash';
 
 const AddRestaurantForm = (props) => {
   const {
@@ -16,7 +17,7 @@ const AddRestaurantForm = (props) => {
   const [restaurantDescription, setRestaurantDescription] = useState('');
   const [imagesSelected, setImagesSelected] = useState([]);
 
-  
+
   const addRestaurant = () => {
     console.log('OK!');
     // console.log('restaurantName: ' + restaurantName);
@@ -107,16 +108,58 @@ const UploadImage = (props) => {
     }
   }
 
+  const removeImage = (image) => {
+    Alert.alert(
+      'Eliminar imagen',
+      '¿Estas seguro que quieres eliminar la imagen?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Eliminar',
+          onPress: () => {
+            setImagesSelected(
+            filter(imagesSelected, (imageUrl) => imageUrl !== image)
+            )
+          }
+        }
+      ],
+      {
+        cancelable: false
+      }
+    )
+  }
+
   return (
-    <View style={styles.viewImages}>
-      <Icon
-        type='material-community'
-        name='camera'
-        color='#7a7a7a'
-        containerStyle={styles.containerIcon}
-        onPress={imageSelect}
-      />
-    </View>
+    <ScrollView
+      horizontal
+      style={styles.viewImages}
+    >
+      {
+        size(imagesSelected) < 4 && (
+          <Icon
+            type='material-community'
+            name='camera'
+            color='#7a7a7a'
+            containerStyle={styles.containerIcon}
+            onPress={imageSelect}
+          />
+        )
+      }
+
+      {
+        map(imagesSelected, (imageRestaurant, index) => (
+          <Avatar
+            key={index}
+            style={styles.miniatureStyle}
+            source={{ uri: imageRestaurant }}
+            onPress={() => removeImage(imageRestaurant)}
+          />
+        ))
+      }
+    </ScrollView>
   )
 }
 
@@ -154,6 +197,11 @@ const styles = StyleSheet.create({
     height: 70,
     width: 70,
     backgroundColor: '#e3e3e3'
+  },
+  miniatureStyle: {
+    width: 70,
+    height: 70,
+    marginRight: 10,
   }
 });
 
