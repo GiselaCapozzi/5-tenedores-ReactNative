@@ -1,10 +1,16 @@
-import React, { useState } from "react";
-import { StyleSheet, View, ScrollView, Alert, Dimensions, FlatList } from 'react-native';
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View, ScrollView, Alert, Dimensions, Text } from 'react-native';
 import { Icon, Avatar, Image, Input, Button } from 'react-native-elements';
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { showMessage } from 'react-native-flash-message';
 import { map, size, filter } from 'lodash';
+import * as Location from 'expo-location';
+
+import Modal from '../Modal';
+import { LOCATION_BACKGROUND } from "expo-permissions";
+
+const widthScreen = Dimensions.get('window').width;
 
 const AddRestaurantForm = (props) => {
   const {
@@ -16,6 +22,7 @@ const AddRestaurantForm = (props) => {
   const [restaurantAddress, setRestaurantAddress] = useState('');
   const [restaurantDescription, setRestaurantDescription] = useState('');
   const [imagesSelected, setImagesSelected] = useState([]);
+  const [isVisibleMap, setIsVisibleMap] = useState(false);
 
 
   const addRestaurant = () => {
@@ -28,10 +35,14 @@ const AddRestaurantForm = (props) => {
 
   return (
     <ScrollView style={styles.scrollView}>
+      <ImageRestaurant
+        imagenRestaurant={imagesSelected[0]}
+      />
       <FormAdd
         setRestaurantName={setRestaurantName}
         setRestaurantAddress={setRestaurantAddress}
         setRestaurantDescription={setRestaurantDescription}
+        setIsVisibleMap={setIsVisibleMap}
       />
       <UploadImage
         setImagesSelected={setImagesSelected}
@@ -42,7 +53,28 @@ const AddRestaurantForm = (props) => {
         onPress={addRestaurant}
         buttonStyle={styles.btnAddRestaurant}
       />
+      <Map
+        isVisibleMap={isVisibleMap}
+        setIsVisibleMap={setIsVisibleMap}
+      />
     </ScrollView>
+  )
+}
+
+const ImageRestaurant = (props) => {
+  const { imagenRestaurant } = props;
+
+  return (
+    <View style={styles.viewPhoto}>
+      <Image
+        source={
+          imagenRestaurant ?
+            { uri: imagenRestaurant } :
+            require('../../../assets/img/no-image.png')
+        }
+        style={{ width: widthScreen, height: 200 }}
+      />
+    </View>
   )
 }
 
@@ -50,7 +82,8 @@ const FormAdd = (props) => {
   const {
     setRestaurantName,
     setRestaurantAddress,
-    setRestaurantDescription
+    setRestaurantDescription,
+    setIsVisibleMap
   } = props
 
   return (
@@ -64,6 +97,12 @@ const FormAdd = (props) => {
         placeholder='Direccion'
         containerStyle={styles.input}
         onChange={e => setRestaurantAddress(e.nativeEvent.text)}
+        rightIcon={{
+          type: 'material-community',
+          name: 'google-maps',
+          color: '#c2c2c2',
+          onPress: () => setIsVisibleMap(true)
+        }}
       />
       <Input
         placeholder='Descripción del restaurante'
@@ -74,6 +113,49 @@ const FormAdd = (props) => {
     </View>
   )
 };
+
+const Map = (props) => {
+  const {
+    isVisibleMap,
+    setIsVisibleMap } = props;
+
+    const [location, setLocation] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const resultLocation = await Location.requestBackgroundPermissionsAsync(
+        LOCATION_BACKGROUND
+      )
+      const statusPermissions = resultLocation.status;
+      console.log(statusPermissions);
+
+      if (statusPermissions !== 'granted') {
+        showMessage({
+          message: 'Tienes que aceptar los permisos de localización para crear un restaurante',
+          type: 'warning',
+          duration: 3000
+        })
+      } else {
+        const loc = await Location.getCurrentPositionAsync({});
+        setLocation({
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+          latitudeDelta: 0.001,
+          longitudeDelta: 0.001
+        })
+      }
+    })()
+  }, [])
+
+  return (
+    <Modal
+      isVisible={isVisibleMap}
+      setIsVisible={setIsVisibleMap}
+    >
+      <Text>Mapa</Text>
+    </Modal>
+  )
+}
 
 const UploadImage = (props) => {
   const {
@@ -121,7 +203,7 @@ const UploadImage = (props) => {
           text: 'Eliminar',
           onPress: () => {
             setImagesSelected(
-            filter(imagesSelected, (imageUrl) => imageUrl !== image)
+              filter(imagesSelected, (imageUrl) => imageUrl !== image)
             )
           }
         }
@@ -202,6 +284,11 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     marginRight: 10,
+  },
+  viewPhoto: {
+    alignItems: 'center',
+    height: 200,
+    marginBottom: 20
   }
 });
 
