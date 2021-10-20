@@ -28,12 +28,28 @@ const AddRestaurantForm = (props) => {
 
 
   const addRestaurant = () => {
-    console.log('OK!');
-    // console.log('restaurantName: ' + restaurantName);
-    // console.log('restaurantAddress: ' + restaurantAddress);
-    // console.log('restaurantDescription: ' + restaurantDescription);
-    console.log(imagesSelected);
-    console.log(locationRestaurant);
+    if (
+      !restaurantName ||
+      !restaurantAddress || 
+      !restaurantDescription) {
+        showMessage({
+          message: 'Todos los campos del formulario son obligatorios',
+          type: 'danger'
+        })
+      } else if (size(imagesSelected) === 0) {
+        showMessage({
+          message: 'El restaurante tiene que tener al menos una foto',
+          type: 'danger'
+        })
+      } else if (!locationRestaurant) {
+        showMessage({
+          message: 'Tienes que localizar el restaurante en el mapa',
+          type: 'danger'
+        })
+      } else {
+        console.log(locationRestaurant);
+        console.log('OK!');
+      }
   }
 
   return (
