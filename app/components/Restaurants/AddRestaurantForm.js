@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, View, ScrollView, Alert, Dimensions, Text } from 'react-native';
 import { Icon, Avatar, Image, Input, Button } from 'react-native-elements';
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { showMessage } from 'react-native-flash-message';
 import { map, size, filter } from 'lodash';
+import * as Location from 'expo-location';
 
 import Modal from '../Modal';
+import { LOCATION_BACKGROUND } from "expo-permissions";
 
 const widthScreen = Dimensions.get('window').width;
 
@@ -51,7 +53,7 @@ const AddRestaurantForm = (props) => {
         onPress={addRestaurant}
         buttonStyle={styles.btnAddRestaurant}
       />
-      <Map 
+      <Map
         isVisibleMap={isVisibleMap}
         setIsVisibleMap={setIsVisibleMap}
       />
@@ -113,7 +115,37 @@ const FormAdd = (props) => {
 };
 
 const Map = (props) => {
-  const { isVisibleMap, setIsVisibleMap } = props;
+  const {
+    isVisibleMap,
+    setIsVisibleMap } = props;
+
+    const [location, setLocation] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const resultLocation = await Location.requestBackgroundPermissionsAsync(
+        LOCATION_BACKGROUND
+      )
+      const statusPermissions = resultLocation.status;
+      console.log(statusPermissions);
+
+      if (statusPermissions !== 'granted') {
+        showMessage({
+          message: 'Tienes que aceptar los permisos de localización para crear un restaurante',
+          type: 'warning',
+          duration: 3000
+        })
+      } else {
+        const loc = await Location.getCurrentPositionAsync({});
+        setLocation({
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+          latitudeDelta: 0.001,
+          longitudeDelta: 0.001
+        })
+      }
+    })()
+  }, [])
 
   return (
     <Modal
