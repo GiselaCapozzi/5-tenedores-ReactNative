@@ -24,6 +24,7 @@ const AddRestaurantForm = (props) => {
   const [restaurantDescription, setRestaurantDescription] = useState('');
   const [imagesSelected, setImagesSelected] = useState([]);
   const [isVisibleMap, setIsVisibleMap] = useState(false);
+  const [locationRestaurant, setLocationRestaurant] = useState(null);
 
 
   const addRestaurant = () => {
@@ -32,6 +33,7 @@ const AddRestaurantForm = (props) => {
     // console.log('restaurantAddress: ' + restaurantAddress);
     // console.log('restaurantDescription: ' + restaurantDescription);
     console.log(imagesSelected);
+    console.log(locationRestaurant);
   }
 
   return (
@@ -57,6 +59,7 @@ const AddRestaurantForm = (props) => {
       <Map
         isVisibleMap={isVisibleMap}
         setIsVisibleMap={setIsVisibleMap}
+        setLocationRestaurant={setLocationRestaurant}
       />
     </ScrollView>
   )
@@ -118,7 +121,8 @@ const FormAdd = (props) => {
 const Map = (props) => {
   const {
     isVisibleMap,
-    setIsVisibleMap } = props;
+    setIsVisibleMap,
+    setLocationRestaurant } = props;
 
   const [location, setLocation] = useState(null);
 
@@ -128,7 +132,7 @@ const Map = (props) => {
         LOCATION_BACKGROUND
       )
       const statusPermissions = resultLocation.status;
-      console.log(statusPermissions);
+      // console.log(statusPermissions);
 
       if (statusPermissions !== 'granted') {
         showMessage({
@@ -148,6 +152,15 @@ const Map = (props) => {
     })()
   }, [])
 
+  const confirmLocation = () => {
+    setLocationRestaurant(location);
+    showMessage({
+      message: 'Localización guardada correctamente',
+      type: 'success'
+    });
+    setIsVisibleMap(false);
+  }
+
   return (
     <Modal
       isVisible={isVisibleMap}
@@ -162,7 +175,7 @@ const Map = (props) => {
               showsUserLocation={true}
               onRegionChange={region => setLocation(region)}
             >
-              <MapView.Marker 
+              <MapView.Marker
                 coordinate={{
                   latitude: location.latitude,
                   longitude: location.longitude
@@ -172,6 +185,20 @@ const Map = (props) => {
             </MapView>
           )
         }
+        <View style={styles.viewMapBtn}>
+          <Button
+            title='Guardar ubicación'
+            containerStyle={styles.viewMapBtnContainerSave}
+            buttonStyle={styles.viewBtnSave}
+            onPress={confirmLocation}
+          />
+          <Button
+            title='Cancelar ubicación'
+            containerStyle={styles.viewMapBtnContainerCancel}
+            buttonStyle={styles.viewMapBtnCancel}
+            onPress={() => setIsVisibleMap(false)}
+          />
+        </View>
       </View>
     </Modal>
   )
@@ -312,7 +339,26 @@ const styles = StyleSheet.create({
   },
   mapStyle: {
     width: '100%',
-    height: 450
+    height: 400
+  },
+  viewMapBtn: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 10
+  },
+  viewMapBtnContainerCancel: {
+    paddingLeft: 5,
+    width: 130,
+  },
+  viewMapBtnCancel: {
+    backgroundColor: '#a60d0d'
+  },
+  viewMapBtnContainerSave: {
+    paddingRight: 5,
+    width: 130
+  },
+  viewBtnSave: {
+    backgroundColor: '#00a680'
   }
 });
 
