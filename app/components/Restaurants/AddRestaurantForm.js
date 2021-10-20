@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, ScrollView, Alert, Dimensions, Text } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, Dimensions } from 'react-native';
 import { Icon, Avatar, Image, Input, Button } from 'react-native-elements';
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
@@ -7,6 +7,10 @@ import { showMessage } from 'react-native-flash-message';
 import { map, size, filter } from 'lodash';
 import * as Location from 'expo-location';
 import MapView from 'react-native-maps';
+import { firebaseApp } from '../../utils/firebase';
+import firebase from "firebase/app";
+import 'firebase/storage';
+import uuid from 'random-uuid-v4';
 
 import Modal from '../Modal';
 import { LOCATION_BACKGROUND } from "expo-permissions";
@@ -47,9 +51,35 @@ const AddRestaurantForm = (props) => {
           type: 'danger'
         })
       } else {
-        console.log(locationRestaurant);
-        console.log('OK!');
+        setIsLoading(true);
+        uploadImageStorage().then(response => {
+          console.log(response);
+          setIsLoading(false);
+        })
       }
+  }
+
+  const uploadImageStorage = async () => {
+    // console.log(imagesSelected);
+    const imageBlob = [];
+
+    await Promise.all(
+      map(imagesSelected, async (image) => {
+        const response = await fetch(image);
+        const blob = await response.blob();
+        const ref = firebase.storage().ref('restaurants').child(uuid());
+        await ref.put(blob).then(async (result) => {
+          await firebase
+            .storage()
+            .ref(`restaurants/${result.metadata.name}`)
+            .getDownloadURL()
+            .then(photoUrl => {
+              imageBlob.push(photoUrl);
+            })
+        });
+      })
+    )
+    return imageBlob;
   }
 
   return (
@@ -62,6 +92,7 @@ const AddRestaurantForm = (props) => {
         setRestaurantAddress={setRestaurantAddress}
         setRestaurantDescription={setRestaurantDescription}
         setIsVisibleMap={setIsVisibleMap}
+        locationRestaurant={locationRestaurant}
       />
       <UploadImage
         setImagesSelected={setImagesSelected}
@@ -103,7 +134,8 @@ const FormAdd = (props) => {
     setRestaurantName,
     setRestaurantAddress,
     setRestaurantDescription,
-    setIsVisibleMap
+    setIsVisibleMap,
+    locationRestaurant
   } = props
 
   return (
@@ -120,7 +152,7 @@ const FormAdd = (props) => {
         rightIcon={{
           type: 'material-community',
           name: 'google-maps',
-          color: '#c2c2c2',
+          color: !locationRestaurant ? '#c2c2c2' : '#00a680',
           onPress: () => setIsVisibleMap(true)
         }}
       />
