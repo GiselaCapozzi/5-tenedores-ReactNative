@@ -16,6 +16,7 @@ const Restaurants = (props) => {
   const [restaurants, setRestaurants] = useState([]);
   const [totalRestaurants, setTotalRestaurants] = useState(0);
   const [startRestaurants, setStartRestaurants] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const limitRestaurants = 10;
 
   useEffect(() => {
@@ -44,12 +45,39 @@ const Restaurants = (props) => {
           });
           setRestaurants(resultRestaurant);
         })
-  }, [])
+  }, []);
+
+  const handleLoadMore = () => {
+    const resultRestaurants = [];
+    restaurants.length < totalRestaurants && setIsLoading(true);
+    
+    db.collection('restaurants')
+      .orderBy('createAt', 'desc')
+      .startAfter(startRestaurants.data().createAt)
+      .limit(limitRestaurants)
+      .get()
+      .then(response => {
+        if (response.docs.length > 0) {
+          setStartRestaurants(response.docs[response.docs.length - 1]);
+        } else {
+          setIsLoading(false);
+        }
+
+        response.forEach((doc) => {    
+          const restaurant = doc.data();
+          restaurant.id = doc.id;
+          resultRestaurants.push(restaurant);
+        });
+        setRestaurants([...restaurants, ...resultRestaurants])
+      })
+  }
 
   return (
     <View style={styles.viewBody}>
       <ListRestaurants 
         restaurants={restaurants}
+        handleLoadMore={handleLoadMore}
+        isLoading={isLoading}
       />
       {
         user && (
