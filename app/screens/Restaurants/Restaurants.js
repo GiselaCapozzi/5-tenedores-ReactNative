@@ -66,7 +66,7 @@ const Restaurants = (props) => {
         response.forEach((doc) => {    
           const restaurant = doc.data();
           restaurant.id = doc.id;
-          resultRestaurant.push(restaurant);
+          resultRestaurants.push(restaurant);
         });
         setRestaurants([...restaurants, ...resultRestaurants])
       })
@@ -76,6 +76,8 @@ const Restaurants = (props) => {
     <View style={styles.viewBody}>
       <ListRestaurants 
         restaurants={restaurants}
+        handleLoadMore={handleLoadMore}
+        isLoading={isLoading}
       />
       {
         user && (

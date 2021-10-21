@@ -4,7 +4,7 @@ import { Image } from 'react-native-elements';
 import { size } from 'lodash';
 
 const ListRestaurants = (props) => {
-  const { restaurants } = props;
+  const { restaurants, handleLoadMore, isLoading } = props;
 
   return (
     <View>
@@ -18,6 +18,9 @@ const ListRestaurants = (props) => {
               />
             }
             keyExtractor={(item, index) => index.toString()}
+            onEndReachedThreshold={0.5}
+            onEndReached={handleLoadMore}
+            ListFooterComponent={<FooterList  isLoading={isLoading}/>}
           />
         ) : (
           <View style={styles.loaderRestaurants}>
@@ -48,7 +51,7 @@ const Restaurant = (props) => {
         <View style={styles.viewRestaurantImage}>
           <Image
             resizeMode='cover'
-            PlaceholderContent={<ActivityIndicator size='small' color="#000" />}
+            PlaceholderContent={<ActivityIndicator size='small' color="#00a680" />}
             source={
               imageRestaurant ?
                 { uri: imageRestaurant } :
@@ -67,6 +70,26 @@ const Restaurant = (props) => {
       </View>
     </TouchableOpacity>
   )
+}
+
+
+
+function FooterList(props) {
+  const { isLoading } = props;
+
+  if (isLoading) {
+    return (
+      <View style={styles.loaderRestaurants}>
+        <ActivityIndicator size="large" color='#00a680'/>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.notFoundRestaurants}>
+        <Text>No quedan restaurantes por cargar</Text>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -97,6 +120,11 @@ const styles = StyleSheet.create({
     paddingTop: 2,
     color: 'grey',
     width: 300
+  },
+  notFoundRestaurants: {
+    marginTop: 10,
+    marginBottom: 20,
+    alignItems: 'center'
   }
 });
 
