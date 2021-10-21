@@ -7,10 +7,12 @@ import { showMessage } from 'react-native-flash-message';
 import { map, size, filter } from 'lodash';
 import * as Location from 'expo-location';
 import MapView from 'react-native-maps';
+import uuid from 'random-uuid-v4';
 import { firebaseApp } from '../../utils/firebase';
 import firebase from "firebase/app";
 import 'firebase/storage';
-import uuid from 'random-uuid-v4';
+import 'firebase/firestore';
+const db = firebase.firestore(firebaseApp);
 
 import Modal from '../Modal';
 import { LOCATION_BACKGROUND } from "expo-permissions";
@@ -53,8 +55,30 @@ const AddRestaurantForm = (props) => {
       } else {
         setIsLoading(true);
         uploadImageStorage().then(response => {
-          console.log(response);
-          setIsLoading(false);
+          db.collection('restaurants')
+            .add({
+              name: restaurantName,
+              address: restaurantAddress,
+              description: restaurantDescription,
+              location: locationRestaurant,
+              images: response,
+              rating: 0,
+              ratingTotal: 0,
+              quantityVoting: 0,
+              createAt: new Date(),
+              createBy: firebase.auth().currentUser.uid
+            })
+            .then(() => {
+              setIsLoading(false);
+              navigation.navigate('restaurantes')
+            })
+            .catch(() => {
+              setIsLoading(false);
+              showMessage({
+                message: 'Error al subir el restaurante, intentelo más tarde',
+                type: 'warning'
+              })
+            })
         })
       }
   }
