@@ -2,9 +2,11 @@ import React from 'react'
 import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Image } from 'react-native-elements';
 import { size } from 'lodash';
+import { useNavigation } from '@react-navigation/native';
 
 const ListRestaurants = (props) => {
   const { restaurants, handleLoadMore, isLoading } = props;
+  const navigation = useNavigation();
 
   return (
     <View>
@@ -15,6 +17,7 @@ const ListRestaurants = (props) => {
             renderItem={(restaurant) =>
               <Restaurant
                 restaurant={restaurant}
+                navigation={navigation}
               />
             }
             keyExtractor={(item, index) => index.toString()}
@@ -37,12 +40,15 @@ const ListRestaurants = (props) => {
 }
 
 const Restaurant = (props) => {
-  const { restaurant } = props;
-  const { images, name, description, address } = restaurant.item;
+  const { restaurant, navigation } = props;
+  const { id, images, name, description, address } = restaurant.item;
   const imageRestaurant = images[0];
 
   const goRestaurant = () => {
-    console.log('OK!');
+    navigation.navigate('restaurant', {
+      id,
+      name
+    });
   }
 
   return (
