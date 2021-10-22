@@ -4,6 +4,7 @@ import { Rating } from 'react-native-elements';
 
 import Loading from '../../components/Loading';
 import Carusel from '../../components/Carousel';
+import Map from '../../components/Map';
 
 import { firebaseApp } from '../../utils/firebase';
 import firebase from 'firebase/app';
@@ -45,6 +46,11 @@ const Restaurant = (props) => {
         description={restaurant.description}
         rating={restaurant.rating}
       />
+      <RestaurantInfo 
+        location={restaurant.location}
+        name={restaurant.name}
+        address={restaurant.address}
+      />
     </ScrollView>
   )
 };
@@ -69,6 +75,21 @@ const TitleRestaurant = (props) => {
   )
 }
 
+const RestaurantInfo = (props) => {
+  const { location, name, address } = props;
+
+  return (
+    <View style={styles.viewRestaurantInfo}>
+      <Text style={styles.restaurantInfoTitle}>Información sobre el restaurante</Text>
+      <Map 
+        location={location}
+        name={name}
+        height={100}
+      />
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
   viewBody: {
     flex: 1,
@@ -86,8 +107,17 @@ const styles = StyleSheet.create({
     color: 'grey'
   },
   rating: {
-    flex: 1,
-    alignItems: 'flex-end'
+    position: 'absolute',
+    right: 0
+  },
+  viewRestaurantInfo: {
+    margin: 15,
+    marginTop: 25
+  },
+  restaurantInfoTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 10
   }
 });
 
