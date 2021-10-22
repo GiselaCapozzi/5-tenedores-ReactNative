@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
+import { Rating } from 'react-native-elements';
 
 import Loading from '../../components/Loading';
 import Carusel from '../../components/Carousel';
@@ -15,6 +16,7 @@ const Restaurant = (props) => {
   const { navigation, route } = props;
   const { id, name } = route.params;
   const [restaurant, setRestaurant] = useState(null);
+  const [rating, setRating] = useState(0);
 
   useEffect(() => {
   navigation.setOptions({ title: name });
@@ -25,6 +27,7 @@ const Restaurant = (props) => {
         const data = response.data();
         data.id = response.id;
         setRestaurant(data);
+        setRating(data.rating);
       })
   }, [navigation])
 
@@ -37,7 +40,32 @@ const Restaurant = (props) => {
         height={250}
         width={screenWidth}
       />
+      <TitleRestaurant 
+        name={restaurant.name}
+        description={restaurant.description}
+        rating={restaurant.rating}
+      />
     </ScrollView>
+  )
+};
+
+const TitleRestaurant = (props) => {
+  const { name, description, rating } = props;
+
+  return (
+    <View style={styles.viewRestaurantTitle}>
+      <View style={{ flexDirection: 'row' }}>
+        <Text style={styles.nameRestaurant}>{name}
+        <Rating 
+          style={styles.rating}
+          imageSize={20}
+          readonly
+          startingValue={parseFloat(rating)}
+        />
+        </Text>
+      </View>
+      <Text style={styles.descriptionRestaurant}>{description}</Text>
+    </View>
   )
 }
 
@@ -45,6 +73,21 @@ const styles = StyleSheet.create({
   viewBody: {
     flex: 1,
     backgroundColor: '#fff'
+  },
+  viewRestaurantTitle: {
+    padding: 15
+  },
+  nameRestaurant: {
+    fontSize: 20,
+    fontWeight: 'bold'
+  },
+  descriptionRestaurant: {
+    marginTop: 5,
+    color: 'grey'
+  },
+  rating: {
+    flex: 1,
+    alignItems: 'flex-end'
   }
 });
 
