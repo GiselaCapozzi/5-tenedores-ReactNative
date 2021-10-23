@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text } from 'react-native';
-import { Button, Avatar, Rating } from 'react-native-elements';
+import { Button, Avatar, Rating, Icon } from 'react-native-elements';
 
 import { firebaseApp } from '../../utils/firebase';
 import firebase from "firebase/app";
@@ -20,12 +20,29 @@ const ListReview = (props) => {
       {
         userLogged ? (
           <Button
-            title='Escribe una opinión'
-
+            title="Escribe una opinión"
+            buttonStyle={styles.btnAddReview}
+            titleStyle={styles.btnTitleAddReview}
+            icon={{
+              type: 'material-community',
+              name: 'square-edit-outline',
+              color: '#00a680'
+            }}
+            onPress={() => navigation.navigate('add-review-restaurant', {
+              idRestaurant: idRestaurant
+            })}
           />
         ) : (
           <View>
-            <Text>Para escribir un comentario es necesrio estar logueado</Text>
+            <Text
+              style={{ textAlign: 'center', color: '#00a680', padding: 20 }}
+              onPress={() => navigation.navigate('login')}
+            >Para escribir un comentario es necesrio estar logueado {" "}
+            <Text 
+            style={{ fontWeight: 'bold' }}
+            >{"\n"}Pulsa AQUI para iniciar sesión
+            </Text>
+            </Text>
           </View>
         )
       }
@@ -34,7 +51,12 @@ const ListReview = (props) => {
 };
 
 const styles = StyleSheet.create({
-
+  btnAddReview: {
+    backgroundColor: 'transparent'
+  },
+  btnTitleAddReview: {
+    color: '#00a680'
+  }
 });
 
 export default ListReview;
