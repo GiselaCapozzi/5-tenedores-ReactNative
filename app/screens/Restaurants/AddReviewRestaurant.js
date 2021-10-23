@@ -4,6 +4,14 @@ import { AirbnbRating, Button, Input } from 'react-native-elements';
 import FlashMessage from 'react-native-flash-message';
 import { showMessage } from 'react-native-flash-message';
 
+import Loading from '../../components/Loading';
+
+import { firebaseApp }from '../../utils/firebase';
+import firebase  from 'firebase/app'
+import 'firebase/firestore';
+
+const db = firebase.firestore(firebaseApp);
+
 const AddReviewRestaurant = (props) => {
   const { navigation, route } = props;
   const { idRestaurant } = route.params;
@@ -12,6 +20,10 @@ const AddReviewRestaurant = (props) => {
   const [title, setTitle] = useState('');
   const [review, setReview] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // useEffect(() => {
+
+  // }, [])
 
   const addReview = () => {
     if (!rating) {
@@ -30,7 +42,30 @@ const AddReviewRestaurant = (props) => {
         type: 'warning'
       })
     } else {
-      console.log('OK!');
+      setIsLoading(true);
+      const user = firebase.auth().currentUser;
+      const payload = {
+        idUser: user.uid,
+        avatarUser: user.photoURL,
+        idRestaurant: idRestaurant,
+        title: title,
+        review: review,
+        rating: rating,
+        createAt: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString()
+      }
+      db.collection('reviews')
+        .add(payload)
+        .then(() => {
+          setIsLoading(false);
+        })
+        .catch(() => {
+          showMessage({
+            message: 'Error al enviar la review',
+            type: 'danger'
+          })
+          setIsLoading(false);
+        })
     }
   }
 
@@ -73,6 +108,7 @@ const AddReviewRestaurant = (props) => {
         />
       </View>
       <FlashMessage position='bottom' />
+      <Loading isVisible={isLoading} text="Enviando comentario"/>
     </ScrollView>
   )
 }
