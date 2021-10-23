@@ -6,6 +6,17 @@ const AddReviewRestaurant = (props) => {
   const { navigation, route } = props;
   const { idRestaurant } = route.params;
 
+  const [rating, setRating] = useState(null);
+  const [title, setTitle] = useState('');
+  const [review, setReview] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const addReview = () => {
+    console.log('rating:', rating);
+    console.log('title:', title);
+    console.log('review:', review);
+  }
+
   const reviewsStar = [
     'Pesimo',
     'Deficiente',
@@ -22,22 +33,26 @@ const AddReviewRestaurant = (props) => {
           reviews={reviewsStar}
           defaultRating={0}
           size={35}
+          onFinishRating={(value) => setRating(value)}
         />
       </View>
       <View style={styles.formReview}>
         <Input 
           placeholder='Titúlo'
           containerStyle={styles.input}
+          onChange={(e) => setTitle(e.nativeEvent.text)}
         />
         <Input 
           title='Comentario...'
           multiline={true}
           inputContainerStyle={styles.textArea}
+          onChange={(e) => setReview(e.nativeEvent.text)}
         />
         <Button 
           title='Enviar comentario'
           containerStyle={styles.btnContainer}
           buttonStyle={styles.btn}
+          onPress={addReview}
         />
       </View>
     </ScrollView>
