@@ -6,6 +6,7 @@ import { map } from 'lodash';
 import Loading from '../../components/Loading';
 import Carusel from '../../components/Carousel';
 import Map from '../../components/Map';
+import ListReview from '../../components/Restaurants/ListReview';
 
 import { firebaseApp } from '../../utils/firebase';
 import firebase from 'firebase/app';
@@ -19,6 +20,7 @@ const Restaurant = (props) => {
   const { id, name } = route.params;
   const [restaurant, setRestaurant] = useState(null);
   const [rating, setRating] = useState(0);
+
 
   useEffect(() => {
     navigation.setOptions({ title: name });
@@ -51,6 +53,11 @@ const Restaurant = (props) => {
         location={restaurant.location}
         name={restaurant.name}
         address={restaurant.address}
+      />
+      <ListReview 
+        navigation={navigation}
+        idRestaurant={restaurant.id}
+        setRating={setRating}
       />
     </ScrollView>
   )
@@ -129,7 +136,7 @@ const RestaurantInfo = (props) => {
       </View>
     </View>
   )
-}
+}; 
 
 const styles = StyleSheet.create({
   viewBody: {
@@ -162,8 +169,7 @@ const styles = StyleSheet.create({
   },
   containerListItem: {
     borderBottomColor: '#d8d8d8',
-    borderBottomWidth: 1,
-    backgroundColor: 'grey'
+    borderBottomWidth: 1
   },
   icon: {
     marginRight: 20
