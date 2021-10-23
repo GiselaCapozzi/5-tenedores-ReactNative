@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
-import { Rating } from 'react-native-elements';
+import { Rating, ListItem, Icon } from 'react-native-elements';
+import { map } from 'lodash';
 
 import Loading from '../../components/Loading';
 import Carusel from '../../components/Carousel';
 import Map from '../../components/Map';
+import ListReview from '../../components/Restaurants/ListReview';
 
 import { firebaseApp } from '../../utils/firebase';
 import firebase from 'firebase/app';
@@ -19,8 +21,9 @@ const Restaurant = (props) => {
   const [restaurant, setRestaurant] = useState(null);
   const [rating, setRating] = useState(0);
 
+
   useEffect(() => {
-  navigation.setOptions({ title: name });
+    navigation.setOptions({ title: name });
     db.collection('restaurants')
       .doc(id)
       .get()
@@ -36,20 +39,25 @@ const Restaurant = (props) => {
 
   return (
     <ScrollView vertical style={styles.viewBody}>
-      <Carusel 
+      <Carusel
         arrayImages={restaurant.images}
         height={250}
         width={screenWidth}
       />
-      <TitleRestaurant 
+      <TitleRestaurant
         name={restaurant.name}
         description={restaurant.description}
         rating={restaurant.rating}
       />
-      <RestaurantInfo 
+      <RestaurantInfo
         location={restaurant.location}
         name={restaurant.name}
         address={restaurant.address}
+      />
+      <ListReview 
+        navigation={navigation}
+        idRestaurant={restaurant.id}
+        setRating={setRating}
       />
     </ScrollView>
   )
@@ -62,12 +70,12 @@ const TitleRestaurant = (props) => {
     <View style={styles.viewRestaurantTitle}>
       <View style={{ flexDirection: 'row' }}>
         <Text style={styles.nameRestaurant}>{name}
-        <Rating 
-          style={styles.rating}
-          imageSize={20}
-          readonly
-          startingValue={parseFloat(rating)}
-        />
+          <Rating
+            style={styles.rating}
+            imageSize={20}
+            readonly
+            startingValue={parseFloat(rating)}
+          />
         </Text>
       </View>
       <Text style={styles.descriptionRestaurant}>{description}</Text>
@@ -78,17 +86,57 @@ const TitleRestaurant = (props) => {
 const RestaurantInfo = (props) => {
   const { location, name, address } = props;
 
+  const listInfo = [
+    {
+      text: address,
+      iconName: 'map-marker',
+      iconType: 'material-community',
+      action: null
+    },
+    {
+      text: '111 222 333',
+      iconName: 'phone',
+      iconType: 'material-community',
+      action: null
+    },
+    {
+      text: 'gisecapozzi@gmail.com',
+      iconName: 'at',
+      iconType: 'material-community',
+      action: null
+    }
+  ]
+
   return (
     <View style={styles.viewRestaurantInfo}>
       <Text style={styles.restaurantInfoTitle}>Información sobre el restaurante</Text>
-      <Map 
+      <Map
         location={location}
         name={name}
         height={100}
       />
+      <View style={styles.containerListItem}>
+        {
+          map(listInfo, (item, index) => (
+            <ListItem key={index}>
+              <ListItem.Content>
+                <ListItem.Title style={styles.text}>
+                <ListItem.Chevron
+                  name={item.iconName}
+                  type={item.iconType}
+                  color={"#00a680"}
+                  iconStyle={styles.icon}
+                />
+                  {item.text}
+                </ListItem.Title>
+              </ListItem.Content>
+            </ListItem>
+          ))
+        }
+      </View>
     </View>
   )
-}
+}; 
 
 const styles = StyleSheet.create({
   viewBody: {
@@ -118,6 +166,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     marginBottom: 10
+  },
+  containerListItem: {
+    borderBottomColor: '#d8d8d8',
+    borderBottomWidth: 1
+  },
+  icon: {
+    marginRight: 20
+  },
+  text: {
+    paddingLeft: 25,
+    fontSize: 12,
+    textAlign: 'center'
   }
 });
 
