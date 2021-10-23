@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { AirbnbRating, Button, Input } from 'react-native-elements';
+import FlashMessage from 'react-native-flash-message';
+import { showMessage } from 'react-native-flash-message';
 
 const AddReviewRestaurant = (props) => {
   const { navigation, route } = props;
@@ -12,9 +14,24 @@ const AddReviewRestaurant = (props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const addReview = () => {
-    console.log('rating:', rating);
-    console.log('title:', title);
-    console.log('review:', review);
+    if (!rating) {
+      showMessage({
+        message: 'No has dado ninguna puntuación',
+        type: 'warning'
+      })
+    } else if (!title) {
+      showMessage({
+        message: 'El título es obligatorio',
+        type: 'warning'
+      })
+    } else if (!review) {
+      showMessage({
+        message: 'El comentario es obligatorio',
+        type: 'warning'
+      })
+    } else {
+      console.log('OK!');
+    }
   }
 
   const reviewsStar = [
@@ -37,24 +54,25 @@ const AddReviewRestaurant = (props) => {
         />
       </View>
       <View style={styles.formReview}>
-        <Input 
+        <Input
           placeholder='Titúlo'
           containerStyle={styles.input}
           onChange={(e) => setTitle(e.nativeEvent.text)}
         />
-        <Input 
-          title='Comentario...'
+        <Input
+          placeholder='Comentario...'
           multiline={true}
           inputContainerStyle={styles.textArea}
           onChange={(e) => setReview(e.nativeEvent.text)}
         />
-        <Button 
+        <Button
           title='Enviar comentario'
           containerStyle={styles.btnContainer}
           buttonStyle={styles.btn}
           onPress={addReview}
         />
       </View>
+      <FlashMessage position='bottom' />
     </ScrollView>
   )
 }
