@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
 import { Rating, ListItem, Icon } from 'react-native-elements';
 import { map } from 'lodash';
-import { useFocusEffect } from '@react-navigation/native'
+import { useFocusEffect } from '@react-navigation/native';
+import FlashMessage from 'react-native-flash-message';
+import { showMessage } from 'react-native-flash-message';
 
 import Loading from '../../components/Loading';
 import Carusel from '../../components/Carousel';
@@ -21,9 +23,15 @@ const Restaurant = (props) => {
   const { id, name } = route.params;
   const [restaurant, setRestaurant] = useState(null);
   const [rating, setRating] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(true);
+  const [userLogged, setUserLogged] = useState(false);
 
   // navigation.setOptions({ title: name });
   // console.log(navigation);
+
+  firebase.auth().onAuthStateChanged(user => {
+    user ? setUserLogged(true) : setUserLogged(false)
+  })
 
   useFocusEffect(
     useCallback(() => {
@@ -39,6 +47,14 @@ const Restaurant = (props) => {
     }, [])
   );
 
+  const addFavorite = () => {
+    console.log('Añadir a favoritos');
+  };
+
+  const removeFavorite = () => {
+    console.log('Eliminar de favoritos');
+  }
+
   if (!restaurant) return (<Loading isVisible={true} text='Cargando...' />)
 
   return (
@@ -46,9 +62,9 @@ const Restaurant = (props) => {
       <View style={styles.viewFavorite}>
         <Icon 
           type='material-community'
-          name='heart'
-          onPress={() => console.log('Add favorites')}
-          color='#000'
+          name={isFavorite ? 'heart' : 'heart-outline'}
+          onPress={isFavorite ? removeFavorite : addFavorite}
+          color={isFavorite ? '#f00' : '#000'}
           size={35}
           underlayColor='transparent'
         />
@@ -71,6 +87,9 @@ const Restaurant = (props) => {
       <ListReview
         navigation={navigation}
         idRestaurant={restaurant.id}
+      />
+      <FlashMessage 
+        position='bottom'
       />
     </ScrollView>
   )
