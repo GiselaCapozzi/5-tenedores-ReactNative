@@ -50,14 +50,14 @@ const Restaurant = (props) => {
   useEffect(() => {
     if (userLogged && restaurant) {
       db.collection('favorites')
-      .where('idRestaurant', '==', restaurant.id)
-      .where('idUser', '==', firebase.auth().currentUser.uid)
-      .get()
-      .then((response) => {
-        if (response.docs.length === 1) {
-          setIsFavorite(true)
-        }
-      })
+        .where('idRestaurant', '==', restaurant.id)
+        .where('idUser', '==', firebase.auth().currentUser.uid)
+        .get()
+        .then((response) => {
+          if (response.docs.length === 1) {
+            setIsFavorite(true)
+          }
+        })
     }
   }, [userLogged, restaurant])
 
@@ -91,7 +91,31 @@ const Restaurant = (props) => {
   };
 
   const removeFavorite = () => {
-    console.log('Eliminar de favoritos');
+    db.collection('favorites')
+      .where('idRestaurant', '==', restaurant.id)
+      .where('idUser', '==', firebase.auth().currentUser.uid)
+      .get()
+      .then(response => {
+        response.forEach((doc) => {
+          const idFavorite = doc.id;
+          db.collection('favorites')
+          .doc(idFavorite)
+          .delete()
+          .then(() => {
+            setIsFavorite(false);
+            showMessage({
+              message: 'Restaurante eliminado de favoritos',
+              type: 'success'
+            })
+          })
+          .catch(() => {
+            showMessage({
+              message: 'Error al eliminar el restaurante de favoritos',
+              type: 'warning'
+            })
+          })
+        })
+      })
   }
 
   if (!restaurant) return (<Loading isVisible={true} text='Cargando...' />)
@@ -99,7 +123,7 @@ const Restaurant = (props) => {
   return (
     <ScrollView vertical style={styles.viewBody}>
       <View style={styles.viewFavorite}>
-        <Icon 
+        <Icon
           type='material-community'
           name={isFavorite ? 'heart' : 'heart-outline'}
           onPress={isFavorite ? removeFavorite : addFavorite}
@@ -127,7 +151,7 @@ const Restaurant = (props) => {
         navigation={navigation}
         idRestaurant={restaurant.id}
       />
-      <FlashMessage 
+      <FlashMessage
         position='top'
       />
     </ScrollView>
