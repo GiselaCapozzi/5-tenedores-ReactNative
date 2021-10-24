@@ -23,7 +23,7 @@ const Restaurant = (props) => {
   const { id, name } = route.params;
   const [restaurant, setRestaurant] = useState(null);
   const [rating, setRating] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [userLogged, setUserLogged] = useState(false);
 
   // navigation.setOptions({ title: name });
@@ -48,7 +48,32 @@ const Restaurant = (props) => {
   );
 
   const addFavorite = () => {
-    console.log('Añadir a favoritos');
+    if (!userLogged) {
+      showMessage({
+        message: 'Para usar el sistema de favoritos tienes que estar logueado',
+        type: 'info'
+      })
+    } else {
+      const payload = {
+        idUser: firebase.auth().currentUser.uid,
+        idRestaurant: restaurant.id
+      }
+      db.collection('favorites')
+        .add(payload)
+        .then(() => {
+          setIsFavorite(true);
+          showMessage({
+            message: 'Restaurante añadido a favoritos',
+            type: 'success'
+          })
+        })
+        .catch(() => {
+          showMessage({
+            message: 'Error al añadir el restaurante a favoritos',
+            type: 'danger'
+          })
+        })
+    }
   };
 
   const removeFavorite = () => {
@@ -89,7 +114,7 @@ const Restaurant = (props) => {
         idRestaurant={restaurant.id}
       />
       <FlashMessage 
-        position='bottom'
+        position='top'
       />
     </ScrollView>
   )
