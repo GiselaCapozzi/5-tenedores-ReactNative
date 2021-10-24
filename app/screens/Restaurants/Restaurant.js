@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
 import { Rating, ListItem, Icon } from 'react-native-elements';
 import { map } from 'lodash';
@@ -46,6 +46,20 @@ const Restaurant = (props) => {
         });
     }, [])
   );
+
+  useEffect(() => {
+    if (userLogged && restaurant) {
+      db.collection('favorites')
+      .where('idRestaurant', '==', restaurant.id)
+      .where('idUser', '==', firebase.auth().currentUser.uid)
+      .get()
+      .then((response) => {
+        if (response.docs.length === 1) {
+          setIsFavorite(true)
+        }
+      })
+    }
+  }, [userLogged, restaurant])
 
   const addFavorite = () => {
     if (!userLogged) {
