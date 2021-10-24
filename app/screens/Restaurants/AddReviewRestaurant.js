@@ -47,7 +47,7 @@ const AddReviewRestaurant = (props) => {
         title: title,
         review: review,
         rating: rating,
-        createAt: new Date().toLocaleDateString(),
+        createAt: new Date(),
         time: new Date().toLocaleTimeString()
       }
       db.collection('reviews')
