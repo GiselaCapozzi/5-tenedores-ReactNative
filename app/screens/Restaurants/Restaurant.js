@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
-import { Rating, ListItem, Icon } from 'react-native-elements';
+import { Rating, ListItem } from 'react-native-elements';
 import { map } from 'lodash';
+import { useFocusEffect } from '@react-navigation/native'
 
 import Loading from '../../components/Loading';
 import Carusel from '../../components/Carousel';
@@ -21,19 +22,22 @@ const Restaurant = (props) => {
   const [restaurant, setRestaurant] = useState(null);
   const [rating, setRating] = useState(0);
 
+  // navigation.setOptions({ title: name });
+  // console.log(navigation);
 
-  useEffect(() => {
-    navigation.setOptions({ title: name });
-    db.collection('restaurants')
-      .doc(id)
-      .get()
-      .then((response) => {
-        const data = response.data();
-        data.id = response.id;
-        setRestaurant(data);
-        setRating(data.rating);
-      })
-  }, [navigation])
+  useFocusEffect(
+    useCallback(() => {
+      db.collection("restaurants")
+        .doc(id)
+        .get()
+        .then((response) => {
+          const data = response.data();
+          data.id = response.id;
+          setRestaurant(data);
+          setRating(data.rating);
+        });
+    }, [])
+  );
 
   if (!restaurant) return (<Loading isVisible={true} text='Cargando...' />)
 
@@ -47,17 +51,16 @@ const Restaurant = (props) => {
       <TitleRestaurant
         name={restaurant.name}
         description={restaurant.description}
-        rating={restaurant.rating}
+        rating={rating}
       />
       <RestaurantInfo
         location={restaurant.location}
         name={restaurant.name}
         address={restaurant.address}
       />
-      <ListReview 
+      <ListReview
         navigation={navigation}
         idRestaurant={restaurant.id}
-        setRating={setRating}
       />
     </ScrollView>
   )
@@ -121,12 +124,12 @@ const RestaurantInfo = (props) => {
             <ListItem key={index}>
               <ListItem.Content>
                 <ListItem.Title style={styles.text}>
-                <ListItem.Chevron
-                  name={item.iconName}
-                  type={item.iconType}
-                  color={"#00a680"}
-                  iconStyle={styles.icon}
-                />
+                  <ListItem.Chevron
+                    name={item.iconName}
+                    type={item.iconType}
+                    color={"#00a680"}
+                    iconStyle={styles.icon}
+                  />
                   {item.text}
                 </ListItem.Title>
               </ListItem.Content>
@@ -136,7 +139,7 @@ const RestaurantInfo = (props) => {
       </View>
     </View>
   )
-}; 
+};
 
 const styles = StyleSheet.create({
   viewBody: {

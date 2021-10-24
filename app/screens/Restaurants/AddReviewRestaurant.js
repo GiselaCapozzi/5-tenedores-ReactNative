@@ -6,8 +6,8 @@ import { showMessage } from 'react-native-flash-message';
 
 import Loading from '../../components/Loading';
 
-import { firebaseApp }from '../../utils/firebase';
-import firebase  from 'firebase/app'
+import { firebaseApp } from '../../utils/firebase';
+import firebase from 'firebase/app'
 import 'firebase/firestore';
 
 const db = firebase.firestore(firebaseApp);
@@ -20,10 +20,6 @@ const AddReviewRestaurant = (props) => {
   const [title, setTitle] = useState('');
   const [review, setReview] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  // useEffect(() => {
-
-  // }, [])
 
   const addReview = () => {
     if (!rating) {
@@ -57,7 +53,7 @@ const AddReviewRestaurant = (props) => {
       db.collection('reviews')
         .add(payload)
         .then(() => {
-          setIsLoading(false);
+          updateRestaurant();
         })
         .catch(() => {
           showMessage({
@@ -68,6 +64,28 @@ const AddReviewRestaurant = (props) => {
         })
     }
   }
+
+  const updateRestaurant = () => {
+    const restaurantRef = db.collection("restaurants").doc(idRestaurant);
+
+    restaurantRef.get().then((response) => {
+      const restaurantData = response.data();
+      const ratingTotal = restaurantData.ratingTotal + rating;
+      const quantityVoting = restaurantData.quantityVoting + 1;
+      const ratingResult = ratingTotal / quantityVoting;
+
+      restaurantRef
+        .update({
+          rating: ratingResult,
+          ratingTotal,
+          quantityVoting,
+        })
+        .then(() => {
+          setIsLoading(false);
+          navigation.goBack();
+        });
+    });
+  };
 
   const reviewsStar = [
     'Pesimo',
@@ -85,7 +103,9 @@ const AddReviewRestaurant = (props) => {
           reviews={reviewsStar}
           defaultRating={0}
           size={35}
-          onFinishRating={(value) => setRating(value)}
+          onFinishRating={(value) => {
+            setRating(value);          
+          }}
         />
       </View>
       <View style={styles.formReview}>
@@ -108,7 +128,7 @@ const AddReviewRestaurant = (props) => {
         />
       </View>
       <FlashMessage position='bottom' />
-      <Loading isVisible={isLoading} text="Enviando comentario"/>
+      <Loading isVisible={isLoading} text="Enviando comentario" />
     </ScrollView>
   )
 }
