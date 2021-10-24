@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
-import { Rating, ListItem } from 'react-native-elements';
+import { Rating, ListItem, Icon } from 'react-native-elements';
 import { map } from 'lodash';
 import { useFocusEffect } from '@react-navigation/native'
 
@@ -43,6 +43,16 @@ const Restaurant = (props) => {
 
   return (
     <ScrollView vertical style={styles.viewBody}>
+      <View style={styles.viewFavorite}>
+        <Icon 
+          type='material-community'
+          name='heart'
+          onPress={() => console.log('Add favorites')}
+          color='#000'
+          size={35}
+          underlayColor='transparent'
+        />
+      </View>
       <Carusel
         arrayImages={restaurant.images}
         height={250}
@@ -181,6 +191,16 @@ const styles = StyleSheet.create({
     paddingLeft: 25,
     fontSize: 12,
     textAlign: 'center'
+  },
+  viewFavorite: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    zIndex: 2,
+    backgroundColor: '#fff',
+    borderBottomLeftRadius: 100,
+    padding: 5,
+    paddingLeft: 15
   }
 });
 
