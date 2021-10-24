@@ -4,16 +4,35 @@ import { Button, Avatar, Rating, Icon } from 'react-native-elements';
 
 import { firebaseApp } from '../../utils/firebase';
 import firebase from "firebase/app";
+import 'firebase/firestore';
+import { forEach } from "lodash";
 
 const db = firebase.firestore(firebaseApp);
 
 const ListReview = (props) => {
-  const { navigation, idRestaurant, setRating } = props;
+  const { navigation, idRestaurant } = props;
   const [userLogged, setUserLogged] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  console.log(reviews);
 
   firebase.auth().onAuthStateChanged((user) => {
     user ? setUserLogged(true) : setUserLogged(false);
-  })
+  });
+
+  useEffect(() => {
+    db.collection('reviews')
+      .where('idRestaurant', '==', idRestaurant)
+      .get()
+      .then((response)=> {
+        const resultReview = [];
+        response.forEach(doc => {
+          const data = doc.data();
+          data.id = doc.id;
+          resultReview.push(data);
+        });
+        setReviews(resultReview);
+      })
+  }, [])
 
   return (
     <View>
