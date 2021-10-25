@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
 import { Rating, ListItem, Icon } from 'react-native-elements';
 import { map } from 'lodash';
-import { useFocusEffect } from '@react-navigation/native'
+import { useFocusEffect } from '@react-navigation/native';
+import FlashMessage from 'react-native-flash-message';
+import { showMessage } from 'react-native-flash-message';
 
 import Loading from '../../components/Loading';
 import Carusel from '../../components/Carousel';
@@ -21,9 +23,15 @@ const Restaurant = (props) => {
   const { id, name } = route.params;
   const [restaurant, setRestaurant] = useState(null);
   const [rating, setRating] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [userLogged, setUserLogged] = useState(false);
 
   // navigation.setOptions({ title: name });
   // console.log(navigation);
+
+  firebase.auth().onAuthStateChanged(user => {
+    user ? setUserLogged(true) : setUserLogged(false)
+  })
 
   useFocusEffect(
     useCallback(() => {
@@ -39,16 +47,87 @@ const Restaurant = (props) => {
     }, [])
   );
 
+  useEffect(() => {
+    if (userLogged && restaurant) {
+      db.collection('favorites')
+        .where('idRestaurant', '==', restaurant.id)
+        .where('idUser', '==', firebase.auth().currentUser.uid)
+        .get()
+        .then((response) => {
+          if (response.docs.length === 1) {
+            setIsFavorite(true)
+          }
+        })
+    }
+  }, [userLogged, restaurant])
+
+  const addFavorite = () => {
+    if (!userLogged) {
+      showMessage({
+        message: 'Para usar el sistema de favoritos tienes que estar logueado',
+        type: 'info'
+      })
+    } else {
+      const payload = {
+        idUser: firebase.auth().currentUser.uid,
+        idRestaurant: restaurant.id
+      }
+      db.collection('favorites')
+        .add(payload)
+        .then(() => {
+          setIsFavorite(true);
+          showMessage({
+            message: 'Restaurante añadido a favoritos',
+            type: 'success'
+          })
+        })
+        .catch(() => {
+          showMessage({
+            message: 'Error al añadir el restaurante a favoritos',
+            type: 'danger'
+          })
+        })
+    }
+  };
+
+  const removeFavorite = () => {
+    db.collection('favorites')
+      .where('idRestaurant', '==', restaurant.id)
+      .where('idUser', '==', firebase.auth().currentUser.uid)
+      .get()
+      .then(response => {
+        response.forEach((doc) => {
+          const idFavorite = doc.id;
+          db.collection('favorites')
+          .doc(idFavorite)
+          .delete()
+          .then(() => {
+            setIsFavorite(false);
+            showMessage({
+              message: 'Restaurante eliminado de favoritos',
+              type: 'success'
+            })
+          })
+          .catch(() => {
+            showMessage({
+              message: 'Error al eliminar el restaurante de favoritos',
+              type: 'warning'
+            })
+          })
+        })
+      })
+  }
+
   if (!restaurant) return (<Loading isVisible={true} text='Cargando...' />)
 
   return (
     <ScrollView vertical style={styles.viewBody}>
       <View style={styles.viewFavorite}>
-        <Icon 
+        <Icon
           type='material-community'
-          name='heart'
-          onPress={() => console.log('Add favorites')}
-          color='#000'
+          name={isFavorite ? 'heart' : 'heart-outline'}
+          onPress={isFavorite ? removeFavorite : addFavorite}
+          color={isFavorite ? '#f00' : '#000'}
           size={35}
           underlayColor='transparent'
         />
@@ -71,6 +150,9 @@ const Restaurant = (props) => {
       <ListReview
         navigation={navigation}
         idRestaurant={restaurant.id}
+      />
+      <FlashMessage
+        position='top'
       />
     </ScrollView>
   )
