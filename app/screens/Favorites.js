@@ -2,12 +2,14 @@ import React, { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native'
 import { StyleSheet, View, Text, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { Image, Icon, Button } from 'react-native-elements';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
 
 import Loading from '../components/Loading';
 
 import { firebaseApp } from '../utils/firebase';
 import firebase from 'firebase';
 import 'firebase/firestore';
+import { set } from 'lodash';
 
 const db = firebase.firestore(firebaseApp);
 
@@ -16,6 +18,8 @@ const Favorites = (props) => {
   const { navigation } = props;
   const [restaurants, setRestaurants] = useState(null);
   const [userLogged, setUserLogged] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [reloadData, setReloadData] = useState(false);
 
   firebase.auth().onAuthStateChanged((user) => {
     user ? setUserLogged(true) : setUserLogged(false);
@@ -44,7 +48,8 @@ const Favorites = (props) => {
             })
           })
       }
-    }, [userLogged])
+      setReloadData(false);
+    }, [userLogged, reloadData])
   )
 
   const getDataRestaurant = (idRestaurantArray) => {
@@ -81,6 +86,8 @@ const Favorites = (props) => {
             renderItem={(restaurant) => <Restaurant
               restaurant={restaurant}
               keyExtractor={(item, index) => index.toString()}
+              setIsLoading={setIsLoading}
+              setReloadData={setReloadData}
             />}
           />
         ) : (
@@ -93,6 +100,8 @@ const Favorites = (props) => {
           </View>
         )
       }
+      <FlashMessage position='center' />
+      <Loading text='Eliminando restaurante' isVisible={isLoading}/>
     </View>
   )
 };
@@ -155,40 +164,91 @@ const UserNoLogged = (props) => {
 }
 
 const Restaurant = (props) => {
-  const { restaurant } = props;
-  const { name, images } = restaurant.item;
-  
+  const { restaurant, setIsLoading, setReloadData } = props;
+  const { name, images, id } = restaurant.item;
+
+  const confirmRemoveFavorite = () => {
+    Alert.alert(
+      'Eliminar restaurante de favotritos',
+      '¿Estas seguro que quieres eliminar el restaurante de favoritos?',
+      [
+        {
+          text: 'Cancelar',
+          styles: 'cancel'
+        },
+        {
+          text: 'Eliminar',
+          onPress: removeFavorite
+        }
+      ],
+      {
+        cancelable: false
+      }
+    )
+  }
+
+  const removeFavorite = () => {
+    setIsLoading(true);
+    db.collection('favorites')
+    .where('idRestaurant', '==', id)
+    .where('idUser', '==', firebase.auth().currentUser.uid)
+    .get()
+    .then((response) => {
+      response.forEach((doc) => {
+        const idFavorite = doc.id;
+        db.collection('favorites')
+        .doc(idFavorite)
+        .delete()
+        .then(() => {
+          setIsLoading(false);
+          setReloadData(true);
+          showMessage({
+            message: 'Restaurante eliminado correctamente',
+            type: 'success'
+          })
+        })
+        .catch(() => {
+          setIsLoading(false);
+          showMessage({
+            message: 'Error al eliminar el restaurante',
+            type: 'danger'
+          })
+        })
+      })
+    })
+  }
+
   return (
     <View style={styles.restaurant}>
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => console.log('IR')}
       />
-      <Image 
+      <Image
         resizeMode='cover'
         style={styles.image}
-        PlaceholderContent={<ActivityIndicator 
+        PlaceholderContent={<ActivityIndicator
           color='#fff'
         />}
         source={
           images[0]
-          ? {uri: images[0]} :
-          require('../../assets/img/no-image.png')
+            ? { uri: images[0] } :
+            require('../../assets/img/no-image.png')
         }
       />
       <View style={styles.info}>
         <Text style={styles.name}>{name}</Text>
-        <Icon 
+        <Icon
           type='material-community'
           name='heart'
           color='#f00'
           containerStyle={styles.favorite}
-          onPress={() => console.log('Remove')}
+          onPress={confirmRemoveFavorite}
           underlayColor='transparent'
         />
       </View>
     </View>
   )
-}
+};
 
 const styles = StyleSheet.create({
   viewBody: {
