@@ -2,6 +2,9 @@ import React, { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native'
 import { StyleSheet, View, Text, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { Image, Icon, Button } from 'react-native-elements';
+import { size } from 'lodash';
+
+import Loading from '../components/Loading';
 
 import { firebaseApp } from '../utils/firebase';
 import firebase from 'firebase';
@@ -13,8 +16,6 @@ const db = firebase.firestore(firebaseApp);
 const Favorites = () => {
   const [restaurants, setRestaurants] = useState(null);
   const [userLogged, setUserLogged] = useState(false);
-
-  console.log(restaurants);
 
   firebase.auth().onAuthStateChanged((user) => {
     user ? setUserLogged(true) : setUserLogged(false);
@@ -50,11 +51,24 @@ const Favorites = () => {
     const arrayRestaurants = [];
     idRestaurantArray.forEach((idRestaurant) => {
       const result = db.collection('restaurants')
-      .doc(idRestaurant)
-      .get();
+        .doc(idRestaurant)
+        .get();
       arrayRestaurants.push(result);
     })
     return Promise.all(arrayRestaurants);
+  };
+
+  if (!restaurants) {
+    return (
+      <Loading
+        isVisible={true}
+        text='Cargando restaurantes'
+      />
+    )
+  } else if (size(restaurants) === 0) {
+    return (
+      <NotFoundRestaurant />
+    )
   }
 
   return (
@@ -65,6 +79,26 @@ const Favorites = () => {
     </View>
   )
 };
+
+const NotFoundRestaurant = () => {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Icon
+        type='material-community'
+        name='alert-outline'
+        size={50}
+        color='#00a680'
+      />
+      <Text style={{ 
+        fontSize: 20, 
+        fontWeight: 'bold', 
+        textAlign: 'center',
+        color: '#00a680' }}>
+        No tienes restaurantes en tu lista
+      </Text>
+    </View>
+  )
+}
 
 const styles = StyleSheet.create({
 
