@@ -12,9 +12,9 @@ const Search = (props) => {
 const { navigation } = props;
 const [search, setSearch] = useState('');
 const [restaurants, setRestaurants] = useState([]);
-console.log(restaurants);
 
 useEffect(() => {
+  setRestaurants([])
   if (search) {
     fireSQL
     .query(`SELECT * FROM restaurants WHERE name LIKE '${search}%'`)
@@ -22,7 +22,7 @@ useEffect(() => {
       setRestaurants(response)
     })
   }
-}, [])
+}, [search])
 
   return (
     <View>
@@ -32,9 +32,30 @@ useEffect(() => {
         containerStyle={styles.searchBar}
         value={search}
       />
+      {
+        restaurants.length === 0 || restaurants === '' ? (
+          <NoFoundRestaurants />
+        ) : (
+          <Text>Resultado...</Text>
+        )
+      }
     </View>
   )
 };
+
+const NoFoundRestaurants = () => {
+  return (
+    <View style={{ flex: 1, alignItems: "center" }}>
+      <Image
+        source={require("../../assets/img/no-result-found.png")}
+        resizeMode="cover"
+        style={{ 
+          width: 200, 
+          height: 200 }}
+      />
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   searchBar: {
