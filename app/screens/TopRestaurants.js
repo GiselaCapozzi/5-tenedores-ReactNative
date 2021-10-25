@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text }  from 'react-native';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
+import FlashMessage from 'react-native-flash-message';
+
+import ListTopRestaurants from '../components/Ranking/ListTopRestaurants';
 
 import { firebaseApp } from '../utils/firebase';
 import firebase from 'firebase/app';
@@ -11,8 +13,6 @@ const db = firebase.firestore(firebaseApp);
 const TopRestaurants = (props) => {
   const { navigation } = props;
   const [restaurants, setRestaurants] = useState([]);
-
-  console.log(restaurants);
 
   useEffect(() => {
     db.collection('restaurants')
@@ -32,9 +32,10 @@ const TopRestaurants = (props) => {
 
   return (
     <View>
-      <Text>
-        TopRestaurants...
-      </Text>
+      <ListTopRestaurants 
+      restaurants={restaurants}
+      navigation={navigation}
+      />
       <FlashMessage position='center'/>
     </View>
   )
