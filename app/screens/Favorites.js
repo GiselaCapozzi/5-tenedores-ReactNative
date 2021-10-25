@@ -88,6 +88,7 @@ const Favorites = (props) => {
               keyExtractor={(item, index) => index.toString()}
               setIsLoading={setIsLoading}
               setReloadData={setReloadData}
+              navigation={navigation}
             />}
           />
         ) : (
@@ -164,7 +165,7 @@ const UserNoLogged = (props) => {
 }
 
 const Restaurant = (props) => {
-  const { restaurant, setIsLoading, setReloadData } = props;
+  const { restaurant, setIsLoading, setReloadData, navigation } = props;
   const { name, images, id } = restaurant.item;
 
   const confirmRemoveFavorite = () => {
@@ -221,8 +222,8 @@ const Restaurant = (props) => {
   return (
     <View style={styles.restaurant}>
       <TouchableOpacity
-        onPress={() => console.log('IR')}
-      />
+        onPress={() => navigation.navigate('restaurants', { screen: 'restaurant', params: {id} })}
+      >
       <Image
         resizeMode='cover'
         style={styles.image}
@@ -246,6 +247,7 @@ const Restaurant = (props) => {
           underlayColor='transparent'
         />
       </View>
+      </TouchableOpacity>
     </View>
   )
 };
