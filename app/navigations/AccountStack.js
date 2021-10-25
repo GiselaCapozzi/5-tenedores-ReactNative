@@ -11,7 +11,7 @@ const AccountStack = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="mi-cuenta"
+        name="account"
         component={Account}
         options={{ title: "Mi Cuenta" }}
       />
