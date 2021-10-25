@@ -19,7 +19,7 @@ const ListTopRestaurants = (props) => {
 
 const Restaurant = (props) => {
   const { restaurant, navigation } = props;
-  const { name, rating, images, description } = restaurant.item;
+  const { id, name, rating, images, description } = restaurant.item;
   const [iconColor, setIconColor] = useState('#000');
 
   useEffect(() => {
@@ -33,33 +33,31 @@ const Restaurant = (props) => {
   }, [])
 
   return (
-    <TouchableOpacity>
-      <Card
-        containerStyle={styles.containerCard}
-      >
-        <Icon 
-          type='material-community'
-          name='chess-queen'
+    <TouchableOpacity
+      // onPress={() =>
+      //   navigation.navigate("restaurants", {screen: 'restaurant', params:{id: id}})
+      // }
+    >
+      <Card containerStyle={styles.containerCard}>
+        <Icon
+          type="material-community"
+          name="chess-queen"
           color={iconColor}
           size={40}
           containerStyle={styles.containerIcon}
         />
-        <Image 
+        <Image
           style={styles.restaurantImage}
-          resizeMode='cover'
+          resizeMode="cover"
           source={
-            images[0] ? 
-            {uri: images[0]} :
-            require('../../../assets/img/no-image.png')
+            images[0]
+              ? { uri: images[0] }
+              : require("../../../assets/img/no-image.png")
           }
         />
         <View style={styles.titleRating}>
           <Text style={styles.title}>{name}</Text>
-          <Rating 
-            imageSize={20}
-            startingValue={rating}
-            readonly
-          />
+          <Rating imageSize={20} startingValue={rating} readonly />
         </View>
         <Text style={styles.description}>{description}</Text>
       </Card>

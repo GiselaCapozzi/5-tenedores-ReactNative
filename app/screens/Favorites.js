@@ -222,7 +222,7 @@ const Restaurant = (props) => {
   return (
     <View style={styles.restaurant}>
       <TouchableOpacity
-        onPress={() => navigation.navigate('restaurants', { screen: 'restaurant', params: {id} })}
+        onPress={() => navigation.navigate('restaurants', { screen: 'restaurant', params: { id } })}
       >
       <Image
         resizeMode='cover'
