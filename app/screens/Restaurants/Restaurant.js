@@ -215,6 +215,7 @@ const RestaurantInfo = (props) => {
           map(listInfo, (item, index) => (
             <ListItem key={index}>
               <ListItem.Content>
+                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
                 <ListItem.Title style={styles.text}>
                   <ListItem.Chevron
                     name={item.iconName}
@@ -224,6 +225,7 @@ const RestaurantInfo = (props) => {
                   />
                   {item.text}
                 </ListItem.Title>
+                </View>
               </ListItem.Content>
             </ListItem>
           ))

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, Image } from 'react-native';
-import { SearchBar, ListItem, Icon } from 'react-native-elements';
+import { SearchBar, ListItem, Icon, Avatar } from 'react-native-elements';
 
 import { FireSQL } from 'firesql';
 import firebase from 'firebase/app';
@@ -36,7 +36,13 @@ useEffect(() => {
         restaurants.length === 0 || restaurants === '' ? (
           <NoFoundRestaurants />
         ) : (
-          <Text>Resultado...</Text>
+          <FlatList
+          data={restaurants}
+          renderItem={(restaurant) => (
+            <Restaurant restaurant={restaurant} navigation={navigation} />
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
         )
       }
     </View>
@@ -54,6 +60,28 @@ const NoFoundRestaurants = () => {
           height: 200 }}
       />
     </View>
+  );
+}
+
+function Restaurant(props) {
+  const { restaurant, navigation } = props;
+  const { id, name, images } = restaurant.item;
+
+  return (
+    <ListItem
+      onPress={() => navigation.navigate('restaurants', { screen: 'restaurant', params: { id, name } })}
+    >
+      <Avatar 
+        source={images[0] ? {uri: images[0]} :
+      require('../../assets/img/no-image.png')}
+      />
+      <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
+      <ListItem.Title>
+        {name}
+      </ListItem.Title>
+      <ListItem.Chevron />
+      </View>
+    </ListItem>
   );
 }
 
