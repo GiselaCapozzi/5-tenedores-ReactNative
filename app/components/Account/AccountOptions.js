@@ -63,7 +63,7 @@ const AccountOptions = (props) => {
             bottomDivider
             onPress={menu.onPress}
           >
-            <ListItem.Content>
+            <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
               <ListItem.Title
                 style={styles.text}
               >
@@ -79,7 +79,7 @@ const AccountOptions = (props) => {
                   color={menu.iconColorRight}
                 />
               </ListItem.Title>
-            </ListItem.Content>
+            </View>
           </ListItem>
         ))
       }
